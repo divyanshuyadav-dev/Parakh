@@ -1,940 +1,156 @@
-# evaluation_prompt = '''
-# You are evaluating a student's answer sheet.
-
-# Inputs:
-
-# 1. Student answer sheet PDF
-# 2. questionStructure JSON extracted from the question paper.
-
-# The questionStructure is authoritative and must be followed exactly.
-
-# It may contain:
-
-# - question hierarchy
-# - marks
-# - optional question rules
-# - rubrics
-
-# Your task is to extract and evaluate the student's answers.
-
-# Generate output that conforms exactly to the supplied response schema.
-
-
-# # EXTRACTION RULES
-
-# Read the entire answer sheet before producing any output.
-
-# Perform semantic interpretation rather than literal OCR.
-
-# Understand:
-
-# - handwriting
-# - equations
-# - mathematical expressions
-# - chemical structures
-# - diagrams
-# - tables
-# - graphs
-# - flowcharts
-
-# Interpret the meaning of visual content instead of reproducing symbols whenever confidence supports the interpretation.
-
-# Do not hallucinate missing information.
-
-# Do not invent content unsupported by the answer sheet.
-
-
-# #QUESTION HIERARCHY RULES
-
-# The questionStructure hierarchy is authoritative.
-
-# Never invent question IDs.
-
-# Never create hierarchy that does not exist.
-
-# Bullet points inside an answer are content only unless they correspond to hierarchy defined in questionStructure.
-
-# Parent nodes are organizational containers.
-
-# If all content belongs to child nodes, leave the parent's answerSummary empty.
-
-# Do not duplicate information between parent and child nodes.
-
-# Student answers may span multiple pages.
-
-# Student answers may appear in non-linear order.
-
-# Preserve the logical question order defined by questionStructure.
-
-
-# # OPTIONAL QUESTION RULES
-
-# If mutually exclusive optional questions are attempted:
-
-# Determine which attempts are valid using questionStructure.
-
-# Store redundant attempts as invalidAnswers.
-
-# Do not include invalid attempts among valid answer blocks.
-
-
-# # EVALUATION RULES
-
-# If rubrics exist, use them when assigning marks.
-
-# Otherwise evaluate using normal academic expectations, including:
-
-# - correctness
-# - completeness
-# - clarity
-# - explanation quality
-# - logical organization
-# - relevance
-# - examples
-# - presentation
-# - expected answer depth relative to marks
-
-# Awarded marks must never exceed the maximum marks defined in questionStructure.
-
-
-# # SASTIFIES AND MISSING
-
-# Populate satisfies and missing with concise, keyword-like phrases (not sentences).
-
-# satisfies lists answer components that earn marks, while missing lists expected components that are absent or insufficient, leading to mark deductions.
-
-# Prefer rubric criteria when available; otherwise use general academic expectations appropriate for the question and its marks.
-
-
-# # ANSWER SUMMARY RULES
-
-# For every answer:
-
-# Produce a concise semantic summary describing what the student actually wrote.
-
-# Do not rewrite the answer into an ideal textbook solution.
-
-# Do not add information that is not present.
-
-# Populate:
-
-# - satisfies
-# - missing
-# - earnedMarks
-# - confidence
-
-# using the observed answer and available rubric.
-
-
-# # CONFIDENCE
-
-# Confidence should reflect:
-
-# - handwriting certainty
-# - semantic interpretation certainty
-# - hierarchy certainty
-# - answer boundary certainty
-# - visual interpretation certainty
-
-# Use values between 0 and 1.
-
-
-# # EXTRACTION STRATEGY
-
-# Perform extraction internally in multiple stages:
-
-# 1. Detect answer regions.
-# 2. Identify question IDs.
-# 3. Resolve page continuations.
-# 4. Interpret semantic content.
-# 5. Apply hierarchy.
-# 6. Apply optional question rules.
-# 7. Evaluate answers.
-# 8. Produce output matching the response schema.
-
-
-# '''
-
 evaluation_prompt = '''
-You are given:
+You are evaluating a student's answer sheet.
 
-1. A student's answer sheet PDF
-2. A structured `questionStructure` JSON extracted from the question paper
+Inputs:
 
-The `questionStructure` hierarchy is authoritative and MUST be followed exactly.
+1. Student answer sheet PDF
+2. questionStructure JSON extracted from the question paper.
 
-The question structure may optionally contain rubrics.
+The questionStructure is authoritative and must be followed exactly.
 
-Your task is:
+It may contain:
 
-Read and understand the student's answer sheet.
+- question hierarchy
+- marks
+- optional question rules
+- rubrics
 
-Perform semantic interpretation of answers rather than exact OCR transcription.
+Your task is to extract and evaluate the student's answers.
 
-Extract answers into the EXACT JSON structure below.
+Generate output that conforms exactly to the supplied response schema.
 
-Generate concise answer understanding summaries suitable for evaluation.
 
-Determine what the student successfully covered and what appears missing.
+# EXTRACTION RULES
 
-Resolve optional-question conflicts and identify invalid attempts.
+Read the entire answer sheet before producing any output.
 
-Return VALID JSON ONLY.
-
-Do not give markdown code block.
-Return only json as plain text
-
-Never explain outside JSON.
-
----
-
-RULES
-
-GENERAL RULES
-
-Extract ONLY student-written content.
-
-Interpret answers semantically.
-
-Do NOT preserve OCR text exactly.
-
-Do NOT force character-level transcription.
+Perform semantic interpretation rather than literal OCR.
 
 Understand:
 
-* equations
-* formulas
-* chemical structures
-* diagrams
-* flowcharts
-* tables
-* graphs
-* mathematical expressions
+- handwriting
+- equations
+- mathematical expressions
+- chemical structures
+- diagrams
+- tables
+- graphs
+- flowcharts
 
-Interpret visual content as meaning rather than literal symbols.
-
-Example:
-
-Wrong:
-
-3/n4
-
-Correct understanding:
-
-3/4
-
-if confidence strongly supports it.
-
-Use semantic interpretation whenever handwriting ambiguity exists.
+Interpret the meaning of visual content instead of reproducing symbols whenever confidence supports the interpretation.
 
 Do not hallucinate missing information.
 
 Do not invent content unsupported by the answer sheet.
 
----
 
-RUBRIC RULES
+#QUESTION HIERARCHY RULES
 
-If rubrics exist inside questionStructure:
+The questionStructure hierarchy is authoritative.
 
-Use them while assigning marks and evaluating answer quality.
+Never invent question IDs.
 
-If rubrics do not exist:
+Never create hierarchy that does not exist.
 
-Evaluate answers using normal academic expectations such as:
-
-* correctness
-* completeness
-* clarity
-* explanation quality
-* organization
-* relevance
-* examples
-* presentation quality
-* logical structure
-* bullet usage when appropriate
-* answer length relative to marks
-
-Do not rigidly depend on rubrics for satisfies or missing fields.
-
-Use overall understanding of the answer.
-
----
-
-QUESTION STRUCTURE RULES
-
-`questionStructure` is authoritative.
-
-Only create IDs that exist inside questionStructure.
-
-Never invent hierarchy.
-
-Student bullets:
-
-i.
-ii.
-iii.
-1.
-2.
-•
--
-
-inside answers are content only.
-
-Do NOT convert them into hierarchy unless hierarchy exists in questionStructure.
-
----
-
-PARENT–CHILD RULES
-
-RULE 1:
+Bullet points inside an answer are content only unless they correspond to hierarchy defined in questionStructure.
 
 Parent nodes are organizational containers.
 
-If content exists entirely inside children:
+If all content belongs to child nodes, leave the parent's answerSummary empty.
 
-"answerSummary":""
+Do not duplicate information between parent and child nodes.
 
----
+Student answers may span multiple pages.
 
-RULE 2:
+Student answers may appear in non-linear order.
 
-Do not duplicate content across parent and child.
+Preserve the logical question order defined by questionStructure.
 
-Correct:
 
-Q1.answerSummary=""
+# OPTIONAL QUESTION RULES
 
-Q1.a.answerSummary="actual content"
+If mutually exclusive optional questions are attempted:
 
----
+Determine which attempts are valid using questionStructure.
 
-RULE 3:
+Store question IDs of redundant attempts as invalidAnswers.
 
-Parent summary exists only if shared content exists before child answers.
+Do not include invalid attempts among valid answer blocks.
 
----
 
-RULE 4:
+# EVALUATION RULES
 
-children must always be:
+If rubrics exist, use them when assigning marks.
 
-[]
+Otherwise evaluate using normal academic expectations, including:
 
-Never null.
+- correctness
+- completeness
+- clarity
+- explanation quality
+- logical organization
+- relevance
+- examples
+- presentation
+- expected answer depth relative to marks
 
----
+Awarded marks must never exceed the maximum marks defined in questionStructure.
 
-RULE 5:
 
-errors must always be:
+# SASTIFIES AND MISSING
 
-[]
+Populate satisfies and missing with concise, tag-like phrases (not sentences).
 
-Never null.
+satisfies lists answer components that earn marks, while missing lists expected components that are absent or insufficient, leading to mark deductions.
 
----
+Prefer rubric criteria when available; otherwise use general academic expectations appropriate for the question and its marks.
 
-RULE 6:
 
-warnings must always be:
+# ANSWER SUMMARY RULES
 
-[]
+For every answer:
 
-Never null.
+Produce a concise semantic summary describing what the student actually wrote.
 
----
+Do not rewrite the answer into an ideal textbook solution.
 
-RULE 7:
+Do not add information that is not present.
 
-If handwriting uncertainty exists:
+Populate:
 
-Extract best semantic interpretation.
+- satisfies
+- missing
+- earnedMarks
+- confidence
 
-Add warning:
+using the observed answer and available rubric.
 
-"handwriting_unclear"
 
----
+# CONFIDENCE
 
-RULE 8:
+Confidence should reflect:
 
-If answer spans multiple pages:
+- handwriting certainty
+- semantic interpretation certainty
+- hierarchy certainty
+- answer boundary certainty
+- visual interpretation certainty
 
-Include all page numbers.
+Use values between 0 and 1.
 
-Example:
 
-[2,3]
+# EXTRACTION STRATEGY
 
----
+Perform extraction internally in multiple stages:
 
-RULE 9:
-
-If question identifier missing:
-
-Assign:
-
-UNMAPPED_1
-
-UNMAPPED_2
-
-UNMAPPED_3
-
----
-
-RULE 10:
-
-Do not merge separated answer blocks unless continuity is strongly supported.
-
----
-
-OPTIONAL QUESTION RULES
-
-If a student attempts mutually exclusive optional questions:
-
-Determine validity using choiceInformation and questionStructure rules.
-
-Mark only excess or conflicting attempts as invalid.
-
-Do not include invalid attempts in answerBlocks.
-
-Store invalid answer IDs:
-
-"invalidAnswers":[
-"Q5.b",
-"Q8.c"
-]
-
----
-
-ANSWER UNDERSTANDING RULES
-
-For each answer node generate:
-
-answerSummary
-
-Concise semantic summary of what the student wrote.
-
-Do not rewrite as ideal answer.
-
-Do not add information absent in answer.
-
----
-
-satisfies
-
-List what the student successfully covered.
-
-Examples:
-
-[
-"Defines operating system correctly",
-"Lists key characteristics",
-"Provides relevant example"
-]
-
----
-
-missing
-
-List what appears absent or weak.
-
-Examples:
-
-[
-"No explanation of memory management",
-"Missing diagram",
-"Limited explanation"
-]
-
----
-
-earnedMarks
-
-Awarded marks must never exceed maximum marks defined in questionStructure.
-
-If parent marks are:
-
-"infer from children and choice description"
-
-derive marks from child nodes.
-
-Assign marks based on:
-
-* rubrics if available
-* otherwise typical academic evaluation expectations
-
-Format:
-
-{
-"value":0,
-"reason":""
-}
-
-Reason should briefly explain awarded or deducted marks.
-
----
-
-CONFIDENCE RULES
-
-confidence:
-
-0 → impossible extraction
-
-1 → highly reliable
-
-Confidence reflects:
-
-* handwriting certainty
-* hierarchy certainty
-* visual interpretation certainty
-* semantic interpretation certainty
-
----
-
-JSON FIELD DEFINITIONS
-
-studentMetadata
-
-General information about the student if present in the answer sheet.
-
-Extract only explicitly visible information.
-
-Do not infer missing values.
-
----
-
-parsingStatus.success
-
-true if extraction is mostly reliable.
-
-false if major extraction failures exist.
-
----
-
-paperClarity
-
-Represents overall answer sheet readability.
-
-Allowed values:
-
-clear
-
-partially_clear
-
-unclear
-
----
-
-overallConfidence
-
-Represents overall extraction reliability.
-
-Includes:
-
-* handwriting readability
-* page quality
-* hierarchy certainty
-* semantic interpretation certainty
-
-Range:
-
-0 → impossible extraction
-
-1 → highly reliable extraction
-
----
-
-errors
-
-Critical failures affecting extraction.
-
-Examples:
-
-[
-"Page 3 unreadable",
-"Question numbering missing"
-]
-
-Must always exist.
-
-Use [] if none.
-
----
-
-warnings
-
-Non-critical issues.
-
-Examples:
-
-[
-"handwriting_unclear",
-"page tilted",
-"partial text overlap"
-]
-
-Must always exist.
-
-Use [] if none.
-
----
-
-id
-
-Use question hierarchy from questionStructure.
-
-Examples:
-
-Q1
-
-Q1.a
-
-Q1.a.i
-
-Q1.a.i.A
-
-If question identifier unavailable:
-
-UNMAPPED_1
-
-UNMAPPED_2
-
----
-
-sourcePages
-
-Pages where answer appears.
-
-Examples:
-
-[2]
-
-[2,3]
-
-Must always exist.
-
----
-
-attemptStatus
-
-Represents the observed state of the answer attempt.
-
-Allowed values:
-
-attempted → answer clearly written
-
-partial → answer started but incomplete
-
-crossed_out → answer intentionally cancelled
-
-uncertain → attempt presence unclear
-
----
-
-confidence
-
-Represents extraction confidence for this answer block.
-
-Includes:
-
-* handwriting certainty
-* hierarchy certainty
-* semantic interpretation certainty
-* answer boundary certainty
-
-Range:
-
-0 → impossible extraction
-
-1 → highly reliable extraction
-
----
-
-issues
-
-Short descriptions of answer extraction or interpretation problems.
-
-Examples:
-
-[
-"Answer partially cut near page edge",
-"Question number uncertain"
-]
-
-Must always exist.
-
-Use [] if none.
-
----
-
-answerSummary
-
-A concise semantic understanding of what the student actually wrote.
-
-Purpose:
-
-Provide meaning of answer content.
-
-Do NOT:
-
-* rewrite as ideal answer
-* improve answer quality
-* add information
-* create a textbook answer
-
-Correct:
-
-"Defines operating system and lists functions such as memory management and scheduling"
-
-Wrong:
-
-"An operating system is system software that manages computer resources..."
-
----
-
-satisfies
-
-List answer components that appear successfully covered.
-
-Purpose:
-
-Identify portions deserving marks.
-
-Examples:
-
-[
-"Correct definition provided",
-"Relevant example included",
-"Diagram labeled correctly"
-]
-
-Do not copy directly from rubrics.
-
-Use understanding of the answer.
-
----
-
-missing
-
-List likely missing, incomplete, or weak components based on:
-
-- level of examination(refer question paper metadata)
-- question expectations
-- marks allocated
-- rubric if available
-- answer content
-
-Do not invent deductions unsupported by answer context.
-
-Avoid overly granular deductions.
-
-Correct:
-
-[
-"Explanation incomplete",
-"No example provided"
-]
-
-Wrong:
-
-[
-"Kernel architecture not discussed",
-"Interrupt handling absent",
-"Memory paging absent"
-]
-
-unless explicitly expected.
-
----
-
-earnedMarks
-
-Represents marks awarded for this answer.
-
-Use rubrics if available.
-
-Otherwise use normal academic evaluation principles.
-
-Structure:
-
-{
-"value":0,
-"reason":""
-}
-
-reason:
-
-Short explanation only.
-
-Correct:
-
-"Definition correct but explanation incomplete"
-
-Wrong:
-
-"Student attempted the question in a reasonably good manner..."
-
----
-
-children
-
-Recursive hierarchy.
-
-Unlimited nesting allowed.
-
-Must always exist.
-
-Use:
-
-[]
-
-Never null.
-
----
-
-invalidAnswers
-
-Contains IDs of redundant answers from optional question conflicts.
-
-Examples:
-
-[
-"Q5.b",
-"Q7.c"
-]
-
-Only include redundant attempts.
-
-Do not include valid answers.
-
----
-
-attemptSummary
-
-Provides extraction summary.
-
-totalAnswerBlocks
-
-Total number of answer nodes extracted.
-
-attemptedQuestionIds
-
-Contains all identified valid question IDs.
-
-Examples:
-
-[
-"Q1",
-"Q2.a",
-"Q5"
-]
-
----
-
-totalAnswerBlocks
-
-Total number of valid answer nodes extracted.
-
-Do not include invalidAnswers.
-
----
-
-attemptedQuestionIds
-
-Contains IDs of valid identified answers only.
-
-Do not include invalidAnswers.
-
----
-
-JSON STRUCTURE
-
-{
-"studentMetadata":{
-"name":"",
-"rollNumber":"",
-"examCode":"",
-"subject":""
-},
-
-"parsingStatus":{
-"success":true,
-"paperClarity":"clear",
-"overallConfidence":0.95,
-"errors":[],
-"warnings":[]
-},
-
-"answerBlocks":[
-{
-"id":"Q1",
-
-"sourcePages":[],
-
-"attemptStatus":"attempted",
-
-"confidence":0.95,
-
-"errors":[],
-
-"warnings":[],
-
-"issues":[],
-
-"answerSummary":"",
-
-"satisfies":[],
-
-"missing":[],
-
-"earnedMarks":{
-"value":0,
-"reason":""
-},
-
-"children":[]
-}
-],
-
-"invalidAnswers":[],
-
-"attemptSummary":{
-"totalAnswerBlocks":0,
-"attemptedQuestionIds":[]
-}
-}
-
-FINAL INSTRUCTION
-
-Perform extraction in multiple passes.
-
-Pass 1:
-
-Identify answer regions, question identifiers, optional choices, page continuations and visual content.
-
-Pass 2:
-
-Verify hierarchy, continuity, diagrams, equations and semantic interpretation.
-
-Pass 3:
-
-Apply rubric-based evaluation if available, otherwise normal academic evaluation.
-
-Pass 4:
-
-Construct final hierarchy.
-
-Pass 5:
-
-Validate JSON consistency.
-
-Student answers may appear non-linearly.
-
-Preserve logical question order according to questionStructure.
-
-Return VALID JSON ONLY.
+1. Detect answer regions.
+2. Identify question IDs.
+3. Resolve page continuations.
+4. Interpret semantic content.
+5. Apply hierarchy.
+6. Apply optional question rules.
+7. Evaluate answers.
+8. Produce output matching the response schema.
 
 
 '''

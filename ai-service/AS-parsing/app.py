@@ -4,8 +4,9 @@ from google import genai
 from helpers.prompt import evaluation_prompt
 from helpers.validate_pdf import is_valid_pdf
 
+from pydantic_models.evaluation_response_model import EvaluationOutput
+
 import os
-import json
 import logging
 
 logging.basicConfig(
@@ -21,13 +22,13 @@ logger.info("cliend loaded")
 
 @app.get('/')
 def status():
-    return {"messege": "api is running"};
+    return {"messege": "api is running"}
 
 # TODO:add more file validations and annotations (for better api docs)
 @app.post('/ai/evaluate-answers')
 async def evaluate(answer_pdf: UploadFile, question_json: UploadFile):
 
-    # pdf check
+    # pdf format check
     if answer_pdf.content_type != "application/pdf":
         raise HTTPException(
             status_code=400,
@@ -35,7 +36,7 @@ async def evaluate(answer_pdf: UploadFile, question_json: UploadFile):
         )
     logger.info("answer pdf format okay")
     
-    # json check
+    # json format check
     if question_json.content_type != "application/json":
         raise HTTPException(
             status_code= 400,
@@ -57,6 +58,7 @@ async def evaluate(answer_pdf: UploadFile, question_json: UploadFile):
     )
     logger.info("answer pdf uploaded")
 
+    # TODO: send question json as text directly instead of uploading
     # upload question json
     uploaded_questionJson = client.files.upload(
         file = question_json.file,
@@ -80,7 +82,12 @@ async def evaluate(answer_pdf: UploadFile, question_json: UploadFile):
                 "mime_type":"application/json"
             },
             {"type": "text", "text": evaluation_prompt}
-        ]
+        ],
+        response_format = {
+            "type":"text",
+            "mime_type":"application/json",
+            "schema":EvaluationOutput.model_json_schema()
+        }
     )
     logger.info("gemini interaction created")
 
@@ -89,9 +96,8 @@ async def evaluate(answer_pdf: UploadFile, question_json: UploadFile):
     client.files.delete(name = uploaded_answersheet.name)
     logger.info("uploaded files deleted")
 
-    # TODO:handle curropted json from model using try except
-    eval_json = json.loads(interaction.output_text)
+    # validate the output and return json
+    eval_json = EvaluationOutput.model_validate_json(interaction.output_text)
     logger.info("json file loaded")
 
     return eval_json
-
