@@ -1,13 +1,23 @@
 from fastapi import FastAPI, UploadFile, HTTPException
 from google import genai
-from prompt import evaluation_prompt
+
+from helpers.prompt import evaluation_prompt
+from helpers.validate_pdf import is_valid_pdf
 
 import os
 import json
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
-client = genai.Client(api_key = os.getenv("GEMINI_API_KEY"))
 
+client = genai.Client(api_key = os.getenv("GEMINI_API_KEY"))
+logger.info("cliend loaded")
 
 @app.get('/')
 def status():
@@ -23,6 +33,7 @@ async def evaluate(answer_pdf: UploadFile, question_json: UploadFile):
             status_code=400,
             detail="Answer sheet must be a pdf"
         )
+    logger.info("answer pdf format okay")
     
     # json check
     if question_json.content_type != "application/json":
@@ -30,18 +41,28 @@ async def evaluate(answer_pdf: UploadFile, question_json: UploadFile):
             status_code= 400,
             detail="Question paper must be submitted as json file"
         )
+    logger.info("question json format is okay")
+    
+    # validate pdf
+    if not is_valid_pdf(answer_pdf.file):
+        raise HTTPException(
+            status_code = 422,
+            detail = "invalid pdf"
+        )
 
     # upload answer sheet
     uploaded_answersheet = client.files.upload(
         file = answer_pdf.file,
         config = dict(mime_type='application/pdf')
     )
+    logger.info("answer pdf uploaded")
 
     # upload question json
     uploaded_questionJson = client.files.upload(
         file = question_json.file,
         config = dict(mime_type='application/json')
     )
+    logger.info("question json uploaed")
 
     # make request to model
     interaction = client.interactions.create(
@@ -61,13 +82,16 @@ async def evaluate(answer_pdf: UploadFile, question_json: UploadFile):
             {"type": "text", "text": evaluation_prompt}
         ]
     )
+    logger.info("gemini interaction created")
 
     # make sure the files dont accumulate
     client.files.delete(name = uploaded_questionJson.name)
     client.files.delete(name = uploaded_answersheet.name)
+    logger.info("uploaded files deleted")
 
     # TODO:handle curropted json from model using try except
     eval_json = json.loads(interaction.output_text)
+    logger.info("json file loaded")
 
     return eval_json
 
