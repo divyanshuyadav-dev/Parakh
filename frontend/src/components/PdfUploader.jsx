@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function PdfUploader() {
   const [files, setFiles] = useState([]);
@@ -126,13 +127,17 @@ export default function PdfUploader() {
       const data = await response.json();
       console.log("Parsed Response JSON Data:", data);
 
-      if (response.ok && data.success) {
+     if (response.ok && data.success) {
         setUploadStatus("success");
         setResponseData(data);
-      } else {
-        setUploadStatus("error");
-        setErrorMessage(data.error || `Server responded with status ${response.status}`);
-      }
+
+           navigate("/review", {
+              state: data,
+             });
+        }   else {
+          setUploadStatus("error");
+          setErrorMessage(data.error || `Server responded with status ${response.status}`);
+        }
     } catch (error) {
       console.error("Network or parsing error:", error);
       setUploadStatus("error");
