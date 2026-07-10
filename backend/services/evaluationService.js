@@ -37,9 +37,10 @@ const getQuestionPaperById = async (id) => {
  * @param {string} examPaperId - The associated question paper's UUID
  * @param {Object} evaluationData - The exact grading response JSON from the AI service
  * @param {string} pdfFilename - The filename of the student's answer sheet
+ * @param {string} [studentName] - The optional name of the student provided by user input
  * @returns {Object} The inserted record containing id and created_at
  */
-const storeEvaluation = async (examPaperId, evaluationData, pdfFilename) => {
+const storeEvaluation = async (examPaperId, evaluationData, pdfFilename, studentName) => {
   if (!supabase) {
     const configError = new Error(
       "Database configuration is missing. Supabase is not configured on this server."
@@ -54,7 +55,7 @@ const storeEvaluation = async (examPaperId, evaluationData, pdfFilename) => {
     exam_paper_id: examPaperId,
     pdf_filename: pdfFilename,
     parsed_data: evaluationData,
-    student_name: studentMetadata.name || "",
+    student_name: studentName || studentMetadata.name || "",
     roll_number: studentMetadata.rollNumber || "",
     exam_code: studentMetadata.examCode || "",
     subject: studentMetadata.subject || "",

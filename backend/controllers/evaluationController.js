@@ -13,10 +13,11 @@ const aiService = require("../services/aiService");
  */
 const uploadAnswers = async (req, res, next) => {
   const questionPaperId = req.body.question_paper_id || req.body.questionPaperId;
+  const studentName = req.body.student_name || req.body.studentName;
   const files = req.files || [];
   const file = files[0];
 
-  console.log(`[Evaluation] >>> Incoming POST /api/evaluations/upload-answers. ID: ${questionPaperId || "undefined"}, File: ${file ? file.originalname : "none"}`);
+  console.log(`[Evaluation] >>> Incoming POST /api/evaluations/upload-answers. ID: ${questionPaperId || "undefined"}, Student: ${studentName || "none"}, File: ${file ? file.originalname : "none"}`);
 
   try {
     if (!questionPaperId) {
@@ -95,7 +96,8 @@ const uploadAnswers = async (req, res, next) => {
     const result = await evaluationService.storeEvaluation(
       questionPaperId,
       evaluationData,
-      file.originalname
+      file.originalname,
+      studentName
     );
     console.log(`[Evaluation] => Step 3: Successfully stored in DB with Record ID: ${result.id}`);
 
