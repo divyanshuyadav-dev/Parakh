@@ -68,12 +68,16 @@ Parakh/
 │
 ├── ai-service/                # AI Microservices (Gemini API integrations)
 │   ├── QP-parsing/            # Question Paper JSON schema parser (Node.js)
-│   │   ├── controllers/       # Handles prompt building and Gemini file processing
+│   │   ├── controllers/       # Handles Gemini file parsing logic
+│   │   ├── middlewares/       # File upload and validation middleware
+│   │   ├── prompts/           # Multi-shot prompts for structured output
+│   │   ├── schemas/           # JSON schema files for parsed output
 │   │   ├── src/index.js       # Express server running on Port 3000
 │   │   └── package.json
 │   │
 │   └── AS-parsing/            # Answer Sheet Grading & Evaluation (FastAPI)
 │       ├── pydantic_models/   # Structured response schemas for validation
+│       ├── helpers/           # Helper utilities (PDF, JSON validation & prompt templates)
 │       ├── app.py             # FastAPI server running on Port 8000
 │       └── requirements.txt   # Python packages (fastapi, google-genai, etc.)
 │
@@ -283,9 +287,9 @@ To verify your installation without uploading your own custom documents:
 ---
 
 ## 👥 Contributors (Team Parakh)
-* **Aaditya Pokhriyal** - Team Leader / Backend Developer & AI Lead
-* **Divyanshu** - Backend Developer & AI Architect (Concept Originator)
-* **Gaurav Verma** - Frontend Developer
-* **Anshu** - Frontend Developer
-* **Jai Singh Rathore** - UI/UX Designer
-* **Raj** - UI/UX Designer
+* **Aaditya Pokhriyal** – Team Leader & AI Services Developer
+* **Divyanshu** – AI Services Developer (Concept Originator) & Data Standardization Lead
+* **Gaurav Verma** – Backend & Integration Developer (Database Connectivity & Service Alignment) & Frontend Lead
+* **Anshu** – Frontend Developer
+* **Jai Singh Rathore** – UI/UX Designer
+* **Raj** – UI/UX Designer
