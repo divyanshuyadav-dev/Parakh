@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import tempJson from "../tempMockData.json";
 import { jsPDF } from "jspdf";
 import { useAuth } from "../context/AuthContext";
 
@@ -318,10 +317,6 @@ export default function FileUploader() {
     }
   };
 
-  const handleTestStep2 = () => {
-    navigate("/review", { state: tempJson });
-  };
-
   // Compute summary for display card
   const isPdf = files.length === 1 && files[0].type === "application/pdf";
   const totalSize = files.reduce((acc, current) => acc + current.size, 0);
@@ -332,11 +327,6 @@ export default function FileUploader() {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h2 style={styles.title}>Upload Question Paper</h2>
-        <p style={styles.subtitle}>Upload your exam PDF or images for automated AI parsing</p>
-        <button type="button" onClick={handleTestStep2} style={{...styles.submitButton, backgroundColor: '#10b981', marginBottom: '16px'}}>
-          Test Step 2 (Mock Data)
-        </button>
 
         {/* Tab switcher */}
         <div style={styles.tabContainer}>

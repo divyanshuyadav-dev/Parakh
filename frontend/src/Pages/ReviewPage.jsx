@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import QuestionNode from "../components/QuestionNode";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
+import WorkflowStepper from "../components/WorkflowStepper";
 
 // ── Collapsible Panel Helper ──────────────────────────────────────────
 const CollapsiblePanel = ({ title, icon, defaultOpen = false, accentColor = "#8b5cf6", children }) => {
@@ -239,17 +240,17 @@ function ReviewPage() {
   return (
     <div style={{ background: "#0b1120", minHeight: "100vh" }}>
       <Navbar />
-      <div style={{ ...styles.container, background: "transparent", paddingTop: "20px" }}>
-      {/* ── Header ──────────────────────────────────────────────────── */}
-      <header style={styles.header}>
-        <h1 style={styles.title}>Step 2: Question Review & Rubrics</h1>
-        <p style={styles.subtitle}>
-          Reviewing: <strong>{filename}</strong>
+      <WorkflowStepper currentStep={2} currentPageName="Review Questions & Rubrics" />
+
+      {/* Standardized Left-Aligned Page Header */}
+      <div style={styles.pageHeader}>
+        <h1 style={styles.pageTitle}>Step 2: Question Review & Rubrics</h1>
+        <p style={styles.pageSubtitle}>
+          Reviewing: <strong>{filename}</strong> | Adjust marks, setup grading rubrics, and configure expectations.
         </p>
-        <p style={{ ...styles.subtitle, fontSize: "14px", marginTop: "4px" }}>
-          Review parsed questions, adjust marks, setup rubrics, and toggle diagram requirements.
-        </p>
-      </header>
+      </div>
+
+      <div style={{ ...styles.container, background: "transparent", paddingTop: "10px" }}>
 
       {submitStatus === "error" && (
         <div style={styles.errorAlert}>
@@ -493,26 +494,25 @@ const styles = {
     padding: "40px 24px",
     fontFamily: "system-ui, -apple-system, sans-serif",
   },
-  header: {
-    maxWidth: "1000px",
-    margin: "0 auto 32px",
-    paddingBottom: "20px",
-    borderBottom: "1px solid #28354d",
+  pageHeader: {
+    maxWidth: "1280px",
+    width: "100%",
+    margin: "10px auto 24px auto",
+    padding: "0 40px",
+    boxSizing: "border-box",
     textAlign: "center",
   },
-  title: {
-    fontSize: "36px",
-    fontWeight: "800",
-    margin: "0 0 10px 0",
-    background: "linear-gradient(135deg, #8b5cf6, #3b82f6)",
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
-  },
-  subtitle: {
-    fontSize: "16px",
-    color: "#cbd5e1",
+  pageTitle: {
+    fontSize: "28px",
+    fontWeight: "700",
+    color: "#fff",
     margin: 0,
-    lineHeight: "1.6",
+  },
+  pageSubtitle: {
+    fontSize: "15px",
+    color: "#94a3b8",
+    margin: "8px 0 0 0",
+    lineHeight: "1.5",
   },
   main: {
     maxWidth: "1000px",

@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const supabase = require("../config/supabase");
+const { privateKey } = require("../config/jwtKeys");
 
 const SALT_ROUNDS = 12;
 const TOKEN_EXPIRY = "7d";
@@ -14,8 +15,8 @@ const TOKEN_EXPIRY = "7d";
 const signToken = (user) => {
   return jwt.sign(
     { id: user.id, email: user.email, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: TOKEN_EXPIRY }
+    privateKey,
+    { algorithm: "RS256", expiresIn: TOKEN_EXPIRY }
   );
 };
 
