@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEvaluation, createBlankSheet } from "../context/EvaluationContext";
 import Navbar from "../components/Navbar";
+import WorkflowStepper from "../components/WorkflowStepper";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -137,15 +138,18 @@ function UploadAnswersPage() {
   return (
     <div style={{ background: "#0f172a", minHeight: "100vh" }}>
       <Navbar />
-      <div style={{ ...styles.container, background: "transparent" }}>
+      <WorkflowStepper currentStep={3} currentPageName="Upload Student Answer Sheets" />
+
+      {/* Standardized Left-Aligned Page Header */}
+      <div style={styles.pageHeader}>
+        <h1 style={styles.pageTitle}>Step 3: Upload Student Answer Sheets</h1>
+        <p style={styles.pageSubtitle}>
+          Upload student answer sheets for automated AI grading against the active question paper.
+        </p>
+      </div>
+
+      <div style={{ ...styles.container, background: "transparent", paddingTop: "10px" }}>
         <div style={styles.outerCard}>
-        {/* ── Page header ─────────────────────────────────────────── */}
-        <div>
-          <h2 style={styles.title}>Step 3: Upload Student Answer Sheets</h2>
-          <p style={styles.subtitle}>
-            Upload one or more student answer sheets for AI grading against the active question paper
-          </p>
-        </div>
 
         {/* ── Associated question paper ───────────────────────────── */}
         <div style={styles.infoCard}>
@@ -506,17 +510,25 @@ const styles = {
     flexDirection: "column",
     gap: "24px",
   },
-  title: {
-    margin: 0,
+  pageHeader: {
+    maxWidth: "1280px",
+    width: "100%",
+    margin: "10px auto 24px auto",
+    padding: "0 40px",
+    boxSizing: "border-box",
+    textAlign: "center",
+  },
+  pageTitle: {
     fontSize: "28px",
     fontWeight: "700",
-    color: "var(--text-h)",
+    color: "#fff",
+    margin: 0,
   },
-  subtitle: {
-    color: "var(--text)",
-    margin: "8px 0 0 0",
+  pageSubtitle: {
     fontSize: "15px",
-    lineHeight: "140%",
+    color: "#94a3b8",
+    margin: "8px 0 0 0",
+    lineHeight: "1.5",
   },
 
   // Info card

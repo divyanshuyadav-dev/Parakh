@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEvaluation } from "../context/EvaluationContext";
 import Navbar from "../components/Navbar";
+import WorkflowStepper from "../components/WorkflowStepper";
 
 // Helper to calculate total earned marks for a student evaluation
 const calculateTotalMarks = (evaluationData) => {
@@ -135,16 +136,33 @@ function EvaluationResultsPage() {
   const location = useLocation();
   const navigate = useNavigate();
   
-  const { evaluations, totalMarks, isBulkUploading, bulkProgress, examPaperId, filename } = useEvaluation();
+  const { evaluations, totalMarks, isBulkUploading, bulkProgress, examPaperId, filename, setExamInfo } = useEvaluation();
   const [selectedId, setSelectedId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Select first student by default
+  // Initialize context from location state if deep-linked from dashboard
   useEffect(() => {
-    if (evaluations.length > 0 && selectedId === null) {
+    const stateExamPaperId = location.state?.examPaperId || location.state?.questionPaperId;
+    const stateFilename = location.state?.filename || location.state?.pdf_filename;
+    const stateTotalMarks = location.state?.totalMarks;
+
+    if (stateExamPaperId && stateExamPaperId !== examPaperId) {
+      setExamInfo({
+        examPaperId: stateExamPaperId,
+        filename: stateFilename || "exam_paper.pdf",
+        totalMarks: stateTotalMarks !== undefined ? stateTotalMarks : null,
+      });
+    }
+  }, [location.state, examPaperId, setExamInfo]);
+
+  // Select first student by default, or specific student if passed in location state
+  useEffect(() => {
+    if (location.state?.selectedEvaluationId) {
+      setSelectedId(location.state.selectedEvaluationId);
+    } else if (evaluations.length > 0 && selectedId === null) {
       setSelectedId(evaluations[0].id);
     }
-  }, [evaluations, selectedId]);
+  }, [evaluations, selectedId, location.state]);
 
   if (evaluations.length === 0) {
     if (isBulkUploading) {
@@ -216,14 +234,17 @@ function EvaluationResultsPage() {
   return (
     <div style={{ background: "#0b1120", minHeight: "100vh" }}>
       <Navbar />
-      <div style={{ ...styles.container, background: "transparent", paddingTop: "20px" }}>
-      {/* Page Header */}
-      <header style={styles.header}>
-        <h1 style={styles.title}>Step 4: Assessment & Evaluation Results</h1>
-        <p style={styles.subtitle}>
-          Detailed analytical grading and AI feedback dashboard
+      <WorkflowStepper currentStep={4} currentPageName="Evaluation Results" />
+
+      {/* Standardized Left-Aligned Page Header */}
+      <div style={styles.pageHeader}>
+        <h1 style={styles.pageTitle}>Step 4: Assessment & Evaluation Results</h1>
+        <p style={styles.pageSubtitle}>
+          Detailed analytical grading and AI feedback dashboard.
         </p>
-      </header>
+      </div>
+
+      <div style={{ ...styles.container, background: "transparent", paddingTop: "10px" }}>
 
       {/* Main layout split */}
       <div style={styles.mainLayout}>
@@ -441,27 +462,25 @@ const styles = {
     display: "flex",
     flexDirection: "column",
   },
-  header: {
-    maxWidth: "1200px",
-    margin: "0 auto 32px",
-    paddingBottom: "20px",
-    borderBottom: "1px solid #28354d",
-    textAlign: "center",
+  pageHeader: {
+    maxWidth: "1280px",
     width: "100%",
+    margin: "10px auto 24px auto",
+    padding: "0 40px",
+    boxSizing: "border-box",
+    textAlign: "center",
   },
-  title: {
-    fontSize: "32px",
-    fontWeight: "800",
-    margin: "0 0 8px 0",
-    background: "linear-gradient(135deg, #a855f7, #3b82f6)",
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
-  },
-  subtitle: {
-    fontSize: "15px",
-    color: "#cbd5e1",
+  pageTitle: {
+    fontSize: "28px",
+    fontWeight: "700",
+    color: "#fff",
     margin: 0,
-    lineHeight: "1.6",
+  },
+  pageSubtitle: {
+    fontSize: "15px",
+    color: "#94a3b8",
+    margin: "8px 0 0 0",
+    lineHeight: "1.5",
   },
   invalidContainer: {
     minHeight: "100vh",
