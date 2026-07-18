@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import "./LandingPage.css";
 
 function LandingPage() {
   const navigate = useNavigate();
@@ -71,46 +72,47 @@ function LandingPage() {
   },
 ];
 
-  return (
-    <div style={{ background: "#0b1120", minHeight: "100vh", position: "relative" }}>
-      <Navbar />
-      <div style={{ ...styles.container, paddingTop: 0 }}>
-         <div style={styles.heroGlow}></div>
+ return (
+  <div className="landing-page">
+    <Navbar />
+
+    <div className="landing-container">
+      <div className="hero-glow"></div>
 
       {/* Hero Section */}
-      <section style={styles.hero}>
-        <div style={styles.badge}>AI-Powered Evaluation Platform</div>
+      <section className="hero-section">
+  <div className="hero-badge">
+    AI-Powered Evaluation Platform
+  </div>
 
-        <h1 style={styles.title}>
-          Parakh <span style={styles.gradient}>AI</span>
-        </h1>
+  <h1 className="hero-title">
+    Parakh <span className="gradient-text">AI</span>
+  </h1>
 
-        <p style={styles.subtitle}>
-          Streamline question paper analysis and answer sheet evaluation with
-          intelligent AI assistance. Upload, review and evaluate with
-          confidence.
-        </p>
+  <p className="hero-subtitle">
+    Streamline question paper analysis and answer sheet evaluation with
+    intelligent AI assistance. Upload, review and evaluate with confidence.
+  </p>
 
-        <div style={styles.buttonGroup}>
+  <div className="hero-buttons">
           <button
-            style={styles.primaryBtn}
+             className="primary-btn"
             onClick={() => navigate("/upload")}
           >
             Upload Question Paper →
           </button>
 
      <button
-  style={styles.secondaryBtn}
+  className="secondary-btn"
   onClick={() => {
-    const element =
-      document.getElementById("workflow");
+const element = document.getElementById("workflow");
 
-    if (element) {
-      window.scrollTo({
-        top: element.offsetTop - 130,
-        behavior: "smooth",
-      });
-    }
+if (element) {
+  window.scrollTo({
+    top: element.offsetTop - 80,
+    behavior: "smooth",
+  });
+}
   }}
 >
   Learn More
@@ -119,59 +121,56 @@ function LandingPage() {
       </section>
 
      {/* Evaluation Workflow */}
- <section
-  id="workflow"
-   style={styles.workflowSection}>
-  <h2 style={styles.sectionTitle}>
+ <section id="workflow" className="workflow-section">
+  <h2 className="section-title">
     Evaluation Workflow
   </h2>
 
-  <p style={styles.sectionSubtitle}>
-    Complete end-to-end AI powered answer sheet
-    evaluation process.
+  <p className="section-subtitle">
+    Complete end-to-end AI powered answer sheet evaluation process.
   </p>
 
-  <div style={styles.features}>
+  <div className="features-grid">
     {features.map((feature, index) => (
-      <div key={index} style={styles.card}>
-        <div style={styles.icon}>
-          {feature.icon}
-        </div>
+      <div key={index} className="feature-card">
+    <div className="feature-icon">
+        {feature.icon}
+    </div>
 
-        <h3 style={styles.cardTitle}>
-          {feature.title}
-        </h3>
+    <h3 className="feature-title">
+        {feature.title}
+    </h3>
 
-        <p style={styles.cardText}>
-          {feature.desc}
-        </p>
-      </div>
+    <p className="feature-text">
+        {feature.desc}
+    </p>
+</div>
     ))}
   </div>
 </section>
 
       {/* Contributors */}
-<section style={styles.contributors}>
-  <h2 style={styles.sectionTitle}>
+<section className="contributors-section">
+  <h2 className="section-title">
     Contributors
   </h2>
 
-  <div style={styles.contributorsGrid}>
+  <div className="contributors-grid">
     {contributors.map((person, index) => (
       <div
-        key={index}
-        style={styles.contributorCard}
-      >
+  key={index}
+  className="contributor-card"
+>
        <a
   href={`https://github.com/${person.github}`}
   target="_blank"
   rel="noopener noreferrer"
 >
   <img
-    src={`https://github.com/${person.github}.png`}
-    alt={person.name}
-    style={styles.avatar}
-  />
+  src={`https://github.com/${person.github}.png`}
+  alt={person.name}
+  className="contributor-avatar"
+/>
 </a>
 
         <h3>{person.name}</h3>
@@ -180,12 +179,12 @@ function LandingPage() {
   href={`https://github.com/${person.github}`}
   target="_blank"
   rel="noopener noreferrer"
-  style={styles.github}
+   className="github-link"
 >
   @{person.github}
 </a>
 
-        <p style={styles.role}>
+        <p className="contributor-role">
           {person.role}
         </p>
       </div>
@@ -194,60 +193,29 @@ function LandingPage() {
 </section>
 
       {/* CTA */}
-      <section style={styles.cta}>
-        <h2
-  style={{
-    marginBottom: "16px",
-  }}
->
-  Ready to transform answer sheet evaluation?
-</h2>
+<section className="cta-section">
+  <h2 className="cta-title">
+    Ready to transform answer sheet evaluation?
+  </h2>
 
-<p
-  style={{
-    color: "#94a3b8",
-    marginBottom: "32px",
-    lineHeight: "1.7",
-  }}
->
-  Start by uploading a question paper and let
-  Parakh do the heavy lifting.
-</p>
+  <p className="cta-text">
+    Start by uploading a question paper and let
+    Parakh do the heavy lifting.
+  </p>
 
-        <button
-          style={styles.primaryBtn}
-          onClick={() => navigate("/upload")}
-        >
-          Get Started →
-        </button>
-      </section>
+  <button
+    className="primary-btn"
+    onClick={() => navigate("/upload")}
+  >
+    Get Started →
+  </button>
+</section>
     </div>
    </div>
   );
 }
 
 const styles = {
-  container: {
-  minHeight: "100vh",
-  background: "#0b1120",
-  color: "#fff",
-  padding: "40px 24px",
-  position: "relative",
-  overflow: "hidden",
-},
-heroGlow: {
-  position: "absolute",
-  top: "180px",
-  left: "50%",
-  transform: "translateX(-50%)",
-  width: "700px",
-  height: "350px",
-  background: "rgba(139,92,246,0.18)",
-  filter: "blur(100px)",
-  borderRadius: "50%",
-  pointerEvents: "none",
-},
-
   navbar: {
     display: "flex",
     justifyContent: "space-between",
@@ -277,192 +245,6 @@ heroGlow: {
     transition: "all 0.2s ease",
   },
 
-hero: {
-  maxWidth: "900px",
-  margin: "0 auto",
-  textAlign: "center",
-  minHeight: "85vh",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "center",
-  position: "relative",
-  zIndex: 1,
-},
-
-badge: {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: "14px 28px",
-  borderRadius: "999px",
-  background: "rgba(88, 60, 180, 0.25)",
-  border: "1px solid rgba(139,92,246,0.25)",
-  color: "#d8ccff",
-  fontWeight: "500",
-  fontSize: "18px",
-  width: "fit-content",
-  margin: "0 auto 30px",
-  backdropFilter: "blur(10px)",
-},
-
-  title: {
-    fontSize: "76px",
-    fontWeight: "900",
-    margin: "0",
-    lineHeight: "1.1",
-  },
-
-  gradient: {
-    background: "linear-gradient(135deg,#8b5cf6,#3b82f6)",
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
-  },
-
-  subtitle: {
-    maxWidth: "700px",
-    margin: "24px auto",
-    fontSize: "22px",
-    lineHeight: "1.8",
-    color: "#cbd5e1",
-  },
-
-  buttonGroup: {
-    display: "flex",
-    justifyContent: "center",
-    gap: "16px",
-    flexWrap: "wrap",
-    marginTop: "30px",
-  },
-
-  primaryBtn: {
-    padding: "16px 28px",
-    border: "none",
-    borderRadius: "12px",
-    background: "linear-gradient(135deg,#8b5cf6,#6366f1)",
-    color: "#fff",
-    fontSize: "16px",
-    fontWeight: "600",
-    cursor: "pointer",
-  },
-
-  secondaryBtn: {
-    padding: "16px 28px",
-    borderRadius: "12px",
-    border: "1px solid #334155",
-    background: "transparent",
-    color: "#e2e8f0",
-    fontSize: "16px",
-    cursor: "pointer",
-  },
-
- features: {
-  maxWidth: "1000px",
-  margin: "40px auto 0",
-  display: "grid",
-  gridTemplateColumns:
-    "repeat(auto-fit, minmax(280px, 1fr))",
-  gap: "24px",
-},
-
-  card: {
-  background: "#172033",
-  border: "1px solid #28354d",
-  borderRadius: "20px",
-  padding: "28px",
-  textAlign: "center",
-  minHeight: "220px",
-  width: "100%",
-  boxSizing: "border-box",
-},
-
-  icon: {
-    fontSize: "40px",
-    marginBottom: "16px",
-  },
-
-  cardTitle: {
-    fontSize: "24px",
-    marginBottom: "12px",
-  },
-
-  cardText: {
-    color: "#94a3b8",
-    lineHeight: "1.6",
-  },
-
-  sectionTitle: {
-    fontSize: "42px",
-    marginBottom: "40px",
-  },
-
-  workflowSection: {
-  marginTop: "40px",
-  textAlign: "center",
-},
-
-sectionSubtitle: {
-  color: "#94a3b8",
-  maxWidth: "700px",
-  margin: "-10px auto 40px",
-  lineHeight: "1.7",
-},
-
-  cta: {
-    textAlign: "center",
-    marginTop: "120px",
-    padding: "80px 40px",
-    borderRadius: "24px",
-    background: "#172033",
-    border: "1px solid #28354d",
-    maxWidth: "1000px",
-    marginLeft: "auto",
-    marginRight: "auto",
-  },
-
-  contributors: {
-  marginTop: "100px",
-  textAlign: "center",
-},
-
-contributorsGrid: {
-  maxWidth: "1000px",
-  margin: "40px auto 0",
-  display: "grid",
-  gridTemplateColumns:
-    "repeat(auto-fit,minmax(280px,1fr))",
-  gap: "24px",
-},
-
-contributorCard: {
-  background: "#172033",
-  border: "1px solid #28354d",
-  borderRadius: "20px",
-  padding: "24px",
-  textAlign: "center",
-},
-
-avatar: {
-  width: "90px",
-  height: "90px",
-  borderRadius: "50%",
-  objectFit: "cover",
-  marginBottom: "16px",
-  border: "3px solid #8b5cf6",
-},
-
-github: {
-  color: "#8b5cf6",
-  fontSize: "14px",
-  marginBottom: "12px",
-  textDecoration: "none",
-  display: "inline-block",
-},
-
-role: {
-  color: "#94a3b8",
-  lineHeight: "1.6",
-  fontSize: "14px",
-},
 };
 
 export default LandingPage;

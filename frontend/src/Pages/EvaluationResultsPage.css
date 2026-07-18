@@ -1,0 +1,55 @@
+.results-layout {
+    display: flex;
+    gap: 24px;
+}
+
+@media(max-width:768px) {
+    .results-layout {
+        flex-direction: column;
+    }
+}
+.results-sidebar {
+    width: 350px;
+}
+
+@media(max-width:768px) {
+
+    .results-sidebar {
+        width: 100%;
+    }
+
+}
+.results-details {
+    flex: 1;
+    min-width: 0;
+}
+
+@media(max-width:768px) {
+
+    .results-details {
+        width: 100%;
+        max-height: none;
+        overflow: visible;
+    }
+
+}
+.student-detail-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+@media(max-width:768px) {
+
+    .student-detail-header {
+        flex-direction: column;
+    }
+
+}
+@media(max-width:768px) {
+
+    .total-score-display {
+        width: 100%;
+    }
+
+}

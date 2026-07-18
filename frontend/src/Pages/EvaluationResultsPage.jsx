@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useEvaluation } from "../context/EvaluationContext";
 import Navbar from "../components/Navbar";
 import WorkflowStepper from "../components/WorkflowStepper";
+import "./EvaluationResultsPage.css";
 
 // Helper to calculate total earned marks for a student evaluation
 const calculateTotalMarks = (evaluationData) => {
@@ -247,10 +248,10 @@ function EvaluationResultsPage() {
       <div style={{ ...styles.container, background: "transparent", paddingTop: "10px" }}>
 
       {/* Main layout split */}
-      <div style={styles.mainLayout}>
+      <div className="results-layout">
         
         {/* Left column: Student list selection */}
-        <div style={styles.sidebar}>
+        <div className="results-sidebar">
           {isBulkUploading && (
             <div style={styles.backgroundProgressBanner}>
               <div style={styles.backgroundProgressHeader}>
@@ -342,12 +343,12 @@ function EvaluationResultsPage() {
         </div>
 
         {/* Right column: Selected student analysis */}
-        <div style={styles.detailsPanel}>
+        <div className="results-details">
           {selectedItem ? (
             <div style={styles.detailsContent}>
               
               {/* Top Summary Card */}
-              <div style={styles.studentDetailHeader}>
+              <div className="student-detail-header">
                 <div style={styles.detailHeaderLeft}>
                   <h2 style={styles.studentNameTitle}>
                     {selectedItem.studentName || metadata?.name || "Unknown Student"}
@@ -359,7 +360,7 @@ function EvaluationResultsPage() {
                     <div><span style={styles.metaLabel}>File:</span> <span style={styles.metaValue} title={selectedItem.filename}>{selectedItem.filename}</span></div>
                   </div>
                 </div>
-                <div style={styles.totalScoreDisplay}>
+                <div className="total-score-display">
                   <span style={styles.scoreDisplayLabel}>Total Score</span>
                   <span style={styles.scoreDisplayValue}>
                     {activeTotalScore}
@@ -508,26 +509,8 @@ const styles = {
     transition: "background-color 0.2s",
   },
 
-  // Main Page Layout
-  mainLayout: {
-    maxWidth: "1200px",
-    width: "100%",
-    margin: "0 auto",
-    display: "flex",
-    gap: "24px",
-    flex: 1,
-    boxSizing: "border-box",
-    alignItems: "stretch",
-  },
 
   // Left Sidebar
-  sidebar: {
-    width: "350px",
-    display: "flex",
-    flexDirection: "column",
-    gap: "16px",
-    flexShrink: 0,
-  },
   searchWrapper: {
     width: "100%",
   },
@@ -602,18 +585,7 @@ const styles = {
     transition: "all 0.2s",
   },
 
-  // Right Details Pane
-  detailsPanel: {
-    flex: 1,
-    minWidth: 0,
-    background: "#101827",
-    border: "1px solid #28354d",
-    borderRadius: "16px",
-    padding: "28px",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-    overflowY: "auto",
-    maxHeight: "calc(100vh - 200px)",
-  },
+  // Right Details Panel
   detailsContent: {
     display: "flex",
     flexDirection: "column",
@@ -632,17 +604,6 @@ const styles = {
   },
 
   // Header inside Right Panel
-  studentDetailHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    background: "rgba(139, 92, 246, 0.03)",
-    border: "1px solid #1e293b",
-    padding: "20px",
-    borderRadius: "14px",
-    gap: "20px",
-    flexWrap: "wrap",
-  },
   detailHeaderLeft: {
     flex: 1,
     minWidth: "250px",
@@ -666,17 +627,6 @@ const styles = {
   metaValue: {
     color: "#cbd5e1",
     fontWeight: "500",
-  },
-  totalScoreDisplay: {
-    background: "linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%)",
-    border: "1px solid rgba(139, 92, 246, 0.3)",
-    borderRadius: "12px",
-    padding: "16px",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    width: "120px",
-    textAlign: "center",
   },
   scoreDisplayLabel: {
     fontSize: "10px",
